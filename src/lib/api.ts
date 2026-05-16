@@ -1,4 +1,6 @@
-const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
+const API = typeof window === 'undefined'
+  ? (process.env.NEXT_PUBLIC_API_URL || 'https://jobmarket-backend-production.up.railway.app')
+  : (process.env.NEXT_PUBLIC_API_URL || '')
 
 async function apiFetch(path: string) {
   const res = await fetch(`${API}${path}`, { cache: 'no-store' })
