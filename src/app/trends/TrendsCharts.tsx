@@ -13,7 +13,7 @@ export default function TrendsCharts({ trend }: { trend: any[] }) {
   async function compare() {
     setLoading(true)
     try {
-      const res = await fetch(`/api/trends/compare?skills=${encodeURIComponent(skills)}&weeks=16`)
+      const res = await fetch(`/api/trends/compare?skills=...`, { signal: AbortSignal.timeout(25000) })
       const data = await res.json()
       setCompareData(data)
     } finally {
@@ -93,7 +93,7 @@ export default function TrendsCharts({ trend }: { trend: any[] }) {
           </ResponsiveContainer>
         ) : (
           <div style={{ textAlign: 'center', color: 'var(--muted)', padding: '40px 0', fontSize: 13 }}>
-            Enter skills above and click Compare → to see trends
+             {loading ? '⏳ Waking up server, please wait 10-15 seconds...' : 'Enter skills above and click Compare → to see trends'}
           </div>
         )}
       </div>
