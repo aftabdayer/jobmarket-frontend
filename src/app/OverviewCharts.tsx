@@ -26,15 +26,15 @@ export default function OverviewCharts({ trend }: { trend: any[] }) {
 
   useEffect(() => {
     setLoadingSkills(true)
-    const q = selectedRole === 'All' ? '' : `?role_title=${encodeURIComponent(selectedRole)}`
+    const roleParam = selectedRole !== 'All' ? `&role_title=${encodeURIComponent(selectedRole)}` : ''
     Promise.all([
-      fetch(`/api/skills/top?limit=15${selectedRole !== 'All' ? '&role_title=' + encodeURIComponent(selectedRole) : ''}`).then(r => r.json()),
+      fetch(`/api/skills/top?limit=15${roleParam}`).then(r => r.json()),
       fetch('/api/cities?limit=10').then(r => r.json()),
     ]).then(([s, c]) => {
-      setSkills(s)
-      setCities(c)
+      setSkills(Array.isArray(s) ? s : [])
+      setCities(Array.isArray(c) ? c : [])
       setLoadingSkills(false)
-    })
+    }).catch(() => setLoadingSkills(false))
   }, [selectedRole])
 
   return (
@@ -74,6 +74,8 @@ export default function OverviewCharts({ trend }: { trend: any[] }) {
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 300 }}>
               <div className="spinner" />
             </div>
+          ) : skills.length === 0 ? (
+            <div style={{ textAlign: 'center', color: 'var(--muted)', padding: 60, fontSize: 13 }}>No data for this role</div>
           ) : (
             <ResponsiveContainer width="100%" height={320}>
               <BarChart data={skills} layout="vertical" margin={{ left: 0, right: 30 }}>
@@ -96,15 +98,21 @@ export default function OverviewCharts({ trend }: { trend: any[] }) {
           <div style={{ fontSize: 12, color: 'var(--muted)', fontFamily: 'var(--font-mono)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 16 }}>
             Jobs by City
           </div>
-          <ResponsiveContainer width="100%" height={320}>
-            <BarChart data={cities} margin={{ bottom: 50 }}>
-              <CartesianGrid vertical={false} />
-              <XAxis dataKey="city" tick={{ fill: '#e2eaf5', fontSize: 10 }} angle={-35} textAnchor="end" />
-              <YAxis tick={{ fill: '#7892b0', fontSize: 11 }} />
-              <Tooltip contentStyle={TIP} />
-              <Bar dataKey="jobs" fill="#a78bfa" radius={[4, 4, 0, 0]} name="Jobs" />
-            </BarChart>
-          </ResponsiveContainer>
+          {cities.length === 0 ? (
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 300 }}>
+              <div className="spinner" />
+            </div>
+          ) : (
+            <ResponsiveContainer width="100%" height={320}>
+              <BarChart data={cities} margin={{ bottom: 50 }}>
+                <CartesianGrid vertical={false} />
+                <XAxis dataKey="city" tick={{ fill: '#e2eaf5', fontSize: 10 }} angle={-35} textAnchor="end" />
+                <YAxis tick={{ fill: '#7892b0', fontSize: 11 }} />
+                <Tooltip contentStyle={TIP} />
+                <Bar dataKey="jobs" fill="#a78bfa" radius={[4, 4, 0, 0]} name="Jobs" />
+              </BarChart>
+            </ResponsiveContainer>
+          )}
         </div>
       </div>
 
